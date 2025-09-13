@@ -95,3 +95,68 @@ def back_to_works_keyboard():
         callback_data='our_works'
     )
     return builder.as_markup()
+
+
+async def faq_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Общие вопросы о светодиодном освещении территорий',
+        callback_data='general_questions'
+    )
+
+    builder.button(
+        text='Освещение садово-парковое',
+        callback_data='gardening_and_park'
+    )
+
+    builder.button(
+        text='Спортивное освещение (стадионы, площадки, фитнес-зоны)',
+        callback_data='sport'
+    )
+
+    builder.button(
+        text='Архитектурно-Художественное освещение (фасады, памятники)',
+        callback_data='architectural_and_artistic'
+    )
+
+    builder.button(
+        text='Промышленное освещение',
+        callback_data='industrial'
+    )
+
+    builder.button(
+        text='Уличное освещение',
+        callback_data='street'
+    )
+
+    builder.button(
+        text='Внутреннее освещение. Офисное и торговое',
+        callback_data='inside'
+    )
+
+    builder.button(
+        text='Ⓜ️ В главное меню',
+        callback_data='main_menu_inline'
+    )
+
+    builder.adjust(1)
+    builder.as_markup()
+
+
+def back_to_faq_keyboard():
+    """Создаёт клавиатуру с кнопкой 'Назад к списку работ'."""
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text='⬅️ Назад',
+        callback_data='faq'
+    )
+
+    builder.button(
+        text='Ⓜ️ В главное меню',
+        callback_data='main_menu_inline'
+    )
+
+    builder.adjust(1)
+    builder.as_markup()
+    return builder.as_markup()

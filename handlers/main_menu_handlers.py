@@ -2,9 +2,14 @@ import os
 from aiogram import Router, types, F
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
 from keyboards.inline_kbs import (
-    main_menu_keyboard, our_works_keyboard, back_to_works_keyboard
+    main_menu_keyboard, our_works_keyboard, back_to_works_keyboard,
+    faq_keyboard, back_to_faq_keyboard
     )
 from utils import get_work_data, our_works_dir_scan, split_message
+from content.faq.texts import (
+    GENERAL_QUESTIONS, GARDENING_AND_PARK, SPORT, ARCHITECTURAL_AND_ARTISTIC,
+    INDUSTRIAL, STREET, INSIDE
+    )
 
 
 main_menu_router = Router()
@@ -203,3 +208,113 @@ async def company_info(callback: types.CallbackQuery):
             await callback.message.answer(text=part, parse_mode='HTML')
 
         await callback.message.answer('.', reply_markup=keyboard)
+
+
+@main_menu_router.callback_query(
+    F.data == 'faq'
+    )
+async def faq(callback: types.CallbackQuery):
+    await callback.answer()
+    keyboard = await faq_keyboard()
+    await callback.message.edit_text(
+        '📌 Выберете категорию:',
+        reply_markup=keyboard
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'general_questions'
+    )
+async def general_questions(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(GENERAL_QUESTIONS)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'gardening_and_park'
+    )
+async def gardening_and_park(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(GARDENING_AND_PARK)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'sport'
+    )
+async def sport(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(SPORT)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'architectural_and_artistic'
+    )
+async def architectural_and_artistic(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(ARCHITECTURAL_AND_ARTISTIC)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'industrial'
+    )
+async def industrial(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(INDUSTRIAL)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'street'
+    )
+async def street(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(STREET)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )
+
+
+@main_menu_router.callback_query(
+    F.data == 'inside'
+    )
+async def inside(callback: types.CallbackQuery):
+    await callback.answer()
+    text = split_message(INSIDE)
+    keyboard = back_to_faq_keyboard()
+    await callback.message.edit_text(
+        text=text,
+        reply_markup=keyboard,
+        parse_mode='HTML'
+    )

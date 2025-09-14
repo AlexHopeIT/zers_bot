@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 
-from utils import get_work_data, our_works_dir_scan
+from utils import our_works_dir_scan
 
 
 async def main_menu_keyboard():
@@ -21,10 +21,10 @@ async def main_menu_keyboard():
         text='Наши работы',
         callback_data='our_works'
     )
-    builder.button(
-        text='Проектным институтам',
-        callback_data='design_institutes'
-    )
+    # builder.button(
+    #     text='Проектным институтам',
+    #     callback_data='design_institutes'
+    # ) ??? возможно, не нужно
     builder.button(
         text='О компании',
         callback_data='company'
@@ -141,7 +141,7 @@ async def faq_keyboard():
     )
 
     builder.adjust(1)
-    builder.as_markup()
+    return builder.as_markup()
 
 
 def back_to_faq_keyboard():
@@ -158,5 +158,4 @@ def back_to_faq_keyboard():
     )
 
     builder.adjust(1)
-    builder.as_markup()
     return builder.as_markup()

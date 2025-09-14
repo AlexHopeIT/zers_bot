@@ -1,16 +1,19 @@
 import os
 from aiogram import Router, types, F
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
+from aiogram.fsm.context import FSMContext
 from keyboards.inline_kbs import (
     main_menu_keyboard, our_works_keyboard, back_to_works_keyboard,
     faq_keyboard, back_to_faq_keyboard
     )
-from utils import get_work_data, our_works_dir_scan, split_message
+from utils import (
+    get_work_data, our_works_dir_scan, split_message, send_or_edit_long_message
+    )
 from content.faq.texts import (
     GENERAL_QUESTIONS, GARDENING_AND_PARK, SPORT, ARCHITECTURAL_AND_ARTISTIC,
     INDUSTRIAL, STREET, INSIDE
     )
-
+from states.states import LeaveARequestState
 
 main_menu_router = Router()
 
@@ -182,32 +185,12 @@ async def company_info(callback: types.CallbackQuery):
     with open(info_path, 'r', encoding='utf-8') as f:
         company_info_full = f.read()
 
-    info_parts = split_message(company_info_full)
     keyboard = await main_menu_keyboard()
-
-    if len(info_parts) == 1:
-        try:
-            await callback.message.edit_text(
-                text=info_parts[0],
-                reply_markup=keyboard,
-                parse_mode='HTML'
-            )
-        except TelegramAPIError:
-            await callback.message.answer(
-                text=info_parts[0],
-                reply_markup=keyboard,
-                parse_mode='HTML'
-            )
-    else:
-        try:
-            await callback.message.edit_reply_markup(reply_markup=None)
-        except TelegramAPIError:
-            pass
-
-        for part in info_parts:
-            await callback.message.answer(text=part, parse_mode='HTML')
-
-        await callback.message.answer('.', reply_markup=keyboard)
+    await send_or_edit_long_message(
+        callback,
+        company_info_full,
+        keyboard
+    )
 
 
 @main_menu_router.callback_query(
@@ -227,12 +210,11 @@ async def faq(callback: types.CallbackQuery):
     )
 async def general_questions(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(GENERAL_QUESTIONS)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        GENERAL_QUESTIONS,
+        keyboard
     )
 
 
@@ -241,12 +223,11 @@ async def general_questions(callback: types.CallbackQuery):
     )
 async def gardening_and_park(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(GARDENING_AND_PARK)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        GARDENING_AND_PARK,
+        keyboard
     )
 
 
@@ -255,12 +236,11 @@ async def gardening_and_park(callback: types.CallbackQuery):
     )
 async def sport(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(SPORT)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        SPORT,
+        keyboard
     )
 
 
@@ -269,12 +249,11 @@ async def sport(callback: types.CallbackQuery):
     )
 async def architectural_and_artistic(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(ARCHITECTURAL_AND_ARTISTIC)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        ARCHITECTURAL_AND_ARTISTIC,
+        keyboard
     )
 
 
@@ -283,12 +262,11 @@ async def architectural_and_artistic(callback: types.CallbackQuery):
     )
 async def industrial(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(INDUSTRIAL)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        INDUSTRIAL,
+        keyboard
     )
 
 
@@ -297,12 +275,11 @@ async def industrial(callback: types.CallbackQuery):
     )
 async def street(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(STREET)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        STREET,
+        keyboard
     )
 
 
@@ -311,10 +288,26 @@ async def street(callback: types.CallbackQuery):
     )
 async def inside(callback: types.CallbackQuery):
     await callback.answer()
-    text = split_message(INSIDE)
     keyboard = back_to_faq_keyboard()
-    await callback.message.edit_text(
-        text=text,
-        reply_markup=keyboard,
-        parse_mode='HTML'
+    await send_or_edit_long_message(
+        callback,
+        INSIDE,
+        keyboard
     )
+
+
+@main_menu_router.callback_query(
+    F.data == 'leave_a_request'
+    )
+async def leave_a_request(callback: types.CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await callback.message.answer('Как к Вам обращаться?')
+    await state.set_state(LeaveARequestState.waiting_for_name)
+    await callback.message.edit_text('Введите Ваш номер телефона')
+    await state.set_state(LeaveARequestState.waiting_for_phone)
+    await callback.message.edit_text('Введите Ваш адрес электронной почты')
+    await state.set_state(LeaveARequestState.waiting_for_email)
+    await callback.message.edit_text(
+        'Напишите, с какой целью Вы оставляете заявку'
+        )
+    await state.set_state(LeaveARequestState.waiting_for_message)

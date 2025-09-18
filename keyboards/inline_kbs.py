@@ -159,3 +159,15 @@ def back_to_faq_keyboard():
 
     builder.adjust(1)
     return builder.as_markup()
+
+
+async def get_admin_menu_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Ⓜ️ В главное меню',
+        callback_data='main_menu_inline'
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()

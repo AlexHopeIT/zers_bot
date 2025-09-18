@@ -14,6 +14,7 @@ from content.faq.texts import (
     INDUSTRIAL, STREET, INSIDE
     )
 from states.states import LeaveARequestState
+from create_db import Applications, AsyncSessionLocal
 
 main_menu_router = Router()
 
@@ -294,20 +295,3 @@ async def inside(callback: types.CallbackQuery):
         INSIDE,
         keyboard
     )
-
-
-@main_menu_router.callback_query(
-    F.data == 'leave_a_request'
-    )
-async def leave_a_request(callback: types.CallbackQuery, state: FSMContext):
-    await callback.answer()
-    await callback.message.answer('Как к Вам обращаться?')
-    await state.set_state(LeaveARequestState.waiting_for_name)
-    await callback.message.edit_text('Введите Ваш номер телефона')
-    await state.set_state(LeaveARequestState.waiting_for_phone)
-    await callback.message.edit_text('Введите Ваш адрес электронной почты')
-    await state.set_state(LeaveARequestState.waiting_for_email)
-    await callback.message.edit_text(
-        'Напишите, с какой целью Вы оставляете заявку'
-        )
-    await state.set_state(LeaveARequestState.waiting_for_message)

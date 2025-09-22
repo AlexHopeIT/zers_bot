@@ -1,6 +1,7 @@
 import os
+import datetime
 from sqlalchemy import (
-    Column, Integer, String, Text
+    Column, Integer, String, Text, Boolean, DateTime, update
 )
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -23,6 +24,8 @@ class Applications(Base):
     phone = Column(String(20), nullable=False)
     email = Column(String(100), nullable=False)
     message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.now())
+    answered = Column(Boolean, default=False)
 
     def __repr__(self):
         return f'<User(id={self.id}), name={self.name}'
@@ -31,6 +34,17 @@ class Applications(Base):
 async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def toggle_request_status(request_id: int, status: bool):
+    '''Изменяет статус "отвечено" на заданное значение'''
+    async with AsyncSessionLocal() as db:
+        await db.execute(
+            update(Applications)
+            .where(Applications.id == request_id)
+            .values(answered=status)
+        )
+        await db.commit()
 
 
 AsyncSessionLocal = sessionmaker(

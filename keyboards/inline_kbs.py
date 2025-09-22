@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 
@@ -165,9 +165,59 @@ async def get_admin_menu_keyboard():
     builder = InlineKeyboardBuilder()
 
     builder.button(
+        text='🔔 Показать все заявки',
+        callback_data='show_all_requests_1'
+    )
+    builder.button(
+        text='⏳ Неотвеченные',
+        callback_data='show_unanswered_requests_1'
+    )
+    builder.button(
+        text='✅ Отвеченные',
+        callback_data='show_answered_requests_1'
+    )
+    builder.button(
         text='Ⓜ️ В главное меню',
         callback_data='main_menu_inline'
     )
 
-    builder.adjust(1)
+    builder.adjust(1, 2, 1)
     return builder.as_markup()
+
+
+def get_requests_keyboard(current_requests, page, total_pages, filter_type):
+    nav_buttons = []
+    if page > 1:
+        nav_buttons.append(
+            InlineKeyboardButton(
+                text='< Назад',
+                callback_data=f'show_{filter_type}_requests_{page - 1}'
+                )
+                )
+    if page < total_pages:
+        nav_buttons.append(
+            InlineKeyboardButton(
+                text='Вперёд >',
+                callback_data=f'show_{filter_type}_requests_{page + 1}'
+                )
+                )
+
+    back_button = [
+        InlineKeyboardButton(
+            text='◀️ Назад в админ-меню', callback_data='admin_menu'
+            )
+            ]
+
+    request_buttons = []
+    for req in current_requests:
+        status_text = '✅ Отметить' if not req.answered else '❌ Снять отметку'
+        request_buttons.append(
+            [InlineKeyboardButton(
+                text=f'{status_text} ID {req.id}',
+                callback_data=f'toggle_answered_{req.id}_{"true" if not req.answered else "false"}'
+            )]
+        )
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[nav_buttons] + request_buttons + [back_button]
+    )

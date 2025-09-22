@@ -3,7 +3,9 @@ import re
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramAPIError
+from sqlalchemy import select, update
 from states.states import LeaveARequestState
+from create_db import AsyncSessionLocal, Applications
 
 
 WORKS_DIR = '../app/content/our_works/'
@@ -140,3 +142,34 @@ async def send_or_edit_long_message(
 
         # Отправляем клавиатуру в самом конце
         await callback.message.answer('.', reply_markup=keyboard)
+
+
+async def get_all_requests() -> list[Applications]:
+    '''Получает все заявки из базы данных.'''
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Applications).order_by(Applications.created_at.desc())
+        )
+        return result.scalars().all()
+
+
+async def get_unanswered_requests() -> list[Applications]:
+    '''Получает только неотвеченные заявки.'''
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Applications)
+            .where(Applications.answered == False)
+            .order_by(Applications.created_at.desc())
+        )
+        return result.scalars().all()
+
+
+async def get_answered_requests() -> list[Applications]:
+    '''Получает только отвеченные заявки.'''
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Applications)
+            .where(Applications.answered == True)
+            .order_by(Applications.created_at.desc())
+        )
+        return result.scalars().all()

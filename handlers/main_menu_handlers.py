@@ -2,9 +2,10 @@ import os
 from aiogram import Router, types, F
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
 from aiogram.fsm.context import FSMContext
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from keyboards.inline_kbs import (
     main_menu_keyboard, our_works_keyboard, back_to_works_keyboard,
-    faq_keyboard, back_to_faq_keyboard
+    faq_keyboard, back_to_faq_keyboard, services_keyboard
     )
 from utils import (
     get_work_data, our_works_dir_scan, split_message, send_or_edit_long_message
@@ -13,6 +14,7 @@ from content.faq.texts import (
     GENERAL_QUESTIONS, GARDENING_AND_PARK, SPORT, ARCHITECTURAL_AND_ARTISTIC,
     INDUSTRIAL, STREET, INSIDE
     )
+from content.services_data import SERVICES
 from states.states import LeaveARequestState
 from create_db import Applications, AsyncSessionLocal
 
@@ -295,3 +297,47 @@ async def inside(callback: types.CallbackQuery):
         INSIDE,
         keyboard
     )
+
+
+@main_menu_router.callback_query(F.data == 'services')
+async def show_services(callback: types.CallbackQuery):
+    await callback.answer()
+    keyboard = await services_keyboard()
+    await callback.message.edit_text(
+        'Мы предлагаем следующие услуги:',
+        reply_markup=keyboard
+    )
+
+
+@main_menu_router.callback_query(F.data.startswith('service_'))
+async def show_service_details(callback: types.CallbackGame):
+    await callback.answer()
+
+    service_id = callback.data.split('_')[1]
+
+    service_info = SERVICES.get(service_id)
+
+    if service_info:
+        details_button = InlineKeyboardButton(
+            text='Узнать подробнее',
+            url=service_info['url']
+        )
+        back_button = InlineKeyboardButton(
+            text='Ⓜ️ В главное меню',
+            callback_data='main_menu_inline'
+        )
+        text = f'**{service_info["title"]}**\n\n{service_info["description"]}'
+
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[[details_button], [back_button]]
+            )
+
+        await callback.message.edit_text(
+            text,
+            reply_markup=keyboard,
+            parse_mode='Markdown'
+        )
+    else:
+        await callback.message.answer(
+            'Извините, услуга не обнаружена.'
+        )

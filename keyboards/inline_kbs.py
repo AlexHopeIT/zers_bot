@@ -3,6 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 
 from utils import our_works_dir_scan
+from content.services_data import SERVICES
 
 
 async def main_menu_keyboard():
@@ -21,10 +22,6 @@ async def main_menu_keyboard():
         text='Наши работы',
         callback_data='our_works'
     )
-    # builder.button(
-    #     text='Проектным институтам',
-    #     callback_data='design_institutes'
-    # ) ??? возможно, не нужно
     builder.button(
         text='О компании',
         callback_data='company'
@@ -145,19 +142,13 @@ async def faq_keyboard():
 
 
 def back_to_faq_keyboard():
-    """Создаёт клавиатуру с кнопкой 'Назад к списку работ'."""
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text='⬅️ Назад',
-        callback_data='faq'
-    )
 
     builder.button(
         text='Ⓜ️ В главное меню',
         callback_data='main_menu_inline'
     )
-
-    builder.adjust(1)
+    builder.adjust(1, 2, 1)
     return builder.as_markup()
 
 
@@ -221,3 +212,19 @@ def get_requests_keyboard(current_requests, page, total_pages, filter_type):
     return InlineKeyboardMarkup(
         inline_keyboard=[nav_buttons] + request_buttons + [back_button]
     )
+
+
+async def services_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    for service_id, service_info in SERVICES.items():
+        builder.button(
+            text=service_info['title'],
+            callback_data=f'service_{service_id}'
+        )
+    builder.button(
+        text='Ⓜ️ В главное меню',
+        callback_data='main_menu_inline'
+    )
+    builder.adjust(1)
+    return builder.as_markup()

@@ -77,13 +77,13 @@ async def show_requests(callback: types.CallbackQuery):
 @admin_router.callback_query(F.data.startswith('toggle_answered_'))
 async def toggle_request_status_handler(callback: types.CallbackQuery):
     await callback.answer()
-    
+
     parts = callback.data.split('_')
     request_id = int(parts[-2])
     new_status = parts[-1] == 'true'
 
     await toggle_request_status(request_id, new_status)
-    
+
     await callback.message.edit_text(
         'Статус заявки изменен.',
         reply_markup=await get_admin_menu_keyboard()

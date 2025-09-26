@@ -228,3 +228,19 @@ async def services_keyboard():
     )
     builder.adjust(1)
     return builder.as_markup()
+
+
+async def products_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='🗄 Каталог',
+        url='https://zers-group.ru/catalog/'
+    )
+    builder.button(
+        text='Ⓜ️ В главное меню',
+        callback_data='main_menu_inline'
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()

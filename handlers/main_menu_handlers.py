@@ -5,7 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from keyboards.inline_kbs import (
     main_menu_keyboard, our_works_keyboard, back_to_works_keyboard,
-    faq_keyboard, back_to_faq_keyboard, services_keyboard
+    faq_keyboard, back_to_faq_keyboard, services_keyboard,
+    products_keyboard
     )
 from utils import (
     get_work_data, our_works_dir_scan, split_message, send_or_edit_long_message
@@ -341,3 +342,15 @@ async def show_service_details(callback: types.CallbackGame):
         await callback.message.answer(
             'Извините, услуга не обнаружена.'
         )
+
+
+@main_menu_router.callback_query(F.data == 'products')
+async def products_catalog(callback: types.CallbackQuery):
+    await callback.answer()
+
+    keyboard = await products_keyboard()
+
+    await callback.message.edit_text(
+        text='Чтобы ознакомиться с нашей продукцией, посетите каталог',
+        reply_markup=keyboard
+    )
